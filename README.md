@@ -1,6 +1,6 @@
 # Overview
 
-This repository is designed to facilitate the creation of new ERC721 tokens that are backed by WSTON tokens. It is intended for deployment on the Ethereum network or any Layer 2 blockchain that supports smart contract deployment.
+This repository is designed to facilitate the creation of new ERC1155 tokens that are backed by WSTON tokens. It is intended for deployment on the Ethereum network or any Layer 2 blockchain that supports smart contract deployment.
 
 ## installation
 
