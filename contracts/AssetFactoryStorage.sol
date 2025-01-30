@@ -2,32 +2,31 @@
 pragma solidity 0.8.25;
 
 /**
- * @title NFTFactoryStorage Contract 
+ * @title AssetFactoryStorage Contract 
  * @author TOKAMAK OPAL TEAM
- * @notice This contract manages storage variables related to the NFT used by the NFTFactory
- * It is used for the creation of NFT, transfer of NFT or even specific customized interactions implemented.
+ * @notice This contract manages storage variables related to the ERC1155 token used by the AssetFactory
+ * It is used for the creation of ERC1155 tokens, transfer of tokens or even specific customized interactions implemented.
 **/
-contract NFTFactoryStorage {
+contract AssetFactoryStorage {
     
     //---------------------------------------------------------------------------------------
     //--------------------------------------STRUCT-------------------------------------------
     //---------------------------------------------------------------------------------------
     
-    struct Nft {
+    struct Asset {
         // add any additionnal features here
-        uint256 tokenId;  
-        uint256 value; // 27 decimals
-        string tokenURI; // IPFS address of the metadata file 
+        uint256 tokenId;
+        uint256 wstonValuePerNFT; // 27 decimals
+        uint256 totalWstonValue; // 27 decimals
+        string uri;
     }
 
     //---------------------------------------------------------------------------------------
     //-------------------------------------STORAGE-------------------------------------------
     //---------------------------------------------------------------------------------------
 
-    Nft[] public Nfts;
-
-    mapping(uint256 => address) public NFTIndexToOwner;
-    mapping(address => uint256) public ownershipTokenCount;
+    Asset[] public Assets;
+    mapping(uint256 => string) _uris;
 
     bool public paused;
 
@@ -42,9 +41,8 @@ contract NFTFactoryStorage {
     // Premining events
     event Created(
         uint256 indexed tokenId, 
-        uint256 value,
-        address owner,
-        string tokenURI 
+        uint256 wstonValue,
+        string uri 
     );
     event TransferNFT(address from, address to, uint256 tokenId);
 
@@ -59,10 +57,11 @@ contract NFTFactoryStorage {
     //-------------------------------------ERRORS--------------------------------------------
     //---------------------------------------------------------------------------------------
 
-    // Mining errors
+    // minting errors
     error MismatchedArrayLengths();
     error AddressZero();
     error NotNFTOwner();
+    error WrongNumberOfNFTToMint();
 
     // Transfer error
     error SameSenderAndRecipient();

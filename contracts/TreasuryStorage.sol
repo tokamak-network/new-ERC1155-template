@@ -2,7 +2,7 @@
 pragma solidity 0.8.25;
 
 contract TreasuryStorage {
-    address internal nftFactory;
+    address internal assetFactory;
     address internal wston;
     
     bool paused = false;

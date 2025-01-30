@@ -7,6 +7,6 @@ import "./proxy/Proxy.sol";
  * @title
  * @dev proxy
  */
-contract NFTFactoryProxy is Proxy {
+contract AssetFactoryProxy is Proxy {
 
 }
