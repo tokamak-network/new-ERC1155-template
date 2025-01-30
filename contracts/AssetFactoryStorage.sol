@@ -26,7 +26,6 @@ contract AssetFactoryStorage {
     //---------------------------------------------------------------------------------------
 
     Asset[] public Assets;
-    mapping(uint256 => string) _uris;
 
     bool public paused;
 
@@ -44,10 +43,12 @@ contract AssetFactoryStorage {
         uint256 wstonValue,
         string uri 
     );
-    event TransferNFT(address from, address to, uint256 tokenId);
 
-    // melt even
-    event NFTMelted(uint256 tokenId, address owner);
+    // mint Events
+    event NFTMinted(uint256 tokenId, address to, uint256 numberOfNFTToMint);
+
+    // burn Events
+    event NFTBurnt(uint256 tokenId, address owner, uint256 numberOfNFTToBurn);
 
     // Pause Events
     event Paused(address account);
@@ -58,18 +59,14 @@ contract AssetFactoryStorage {
     //---------------------------------------------------------------------------------------
 
     // minting errors
-    error MismatchedArrayLengths();
     error AddressZero();
-    error NotNFTOwner();
     error WrongNumberOfNFTToMint();
 
-    // Transfer error
-    error SameSenderAndRecipient();
+    // tranfer errors
     error TransferFailed();
-
+    
     // access errors
     error UnauthorizedCaller(address caller);
     error ContractPaused();
     error ContractNotPaused();
-    error URIQueryForNonexistentToken(uint256 tokenId);
 }

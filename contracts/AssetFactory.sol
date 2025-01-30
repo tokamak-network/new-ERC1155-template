@@ -94,15 +94,15 @@ contract AssetFactory is ProxyStorage,
         address _owner, 
         address _wston, 
         address _treasury,
-        uint256[] memory wstonValues
+        uint256[] memory wstonValues,
+        string[] memory uris
     ) external initializer {
         __ERC1155_init("");
         __Ownable_init(_owner);
         wston = _wston;
         treasury = _treasury;
         for(uint256 i = 0; i < wstonValues.length; i++) {
-            Assets[i].tokenId = i;
-            Assets[i].wstonValuePerNFT = wstonValues[i];
+            createAsset(wstonValues[i], uris[i]);
         }
     }
 
@@ -158,6 +158,7 @@ contract AssetFactory is ProxyStorage,
         Assets[_tokenId].totalWstonValue += wstonValueOfNFTs;
         // mint the NFT
         _mint(_to, _tokenId, _numberOfNFTToMint, "");
+        emit NFTMinted(_tokenId, _to, _numberOfNFTToMint);
     }
 
     /**
@@ -184,7 +185,7 @@ contract AssetFactory is ProxyStorage,
             revert TransferFailed();
         }
         // Emit an event indicating the NFT has been melted
-        emit NFTMelted(_tokenId, msg.sender);
+        emit NFTBurnt(_tokenId, msg.sender, _numberOfNFTToBurn);
     }
 
     /**

@@ -13,27 +13,25 @@ async function main() {
 
     // ------------------------ NFTFACTORY INSTANCE ---------------------------------
 
-    // Instantiate the NFTFactory
-    const NFTFactory = await ethers.getContractFactory("NFTFactory");
-    const nftFactory = await NFTFactory.deploy();
-    await nftFactory.deployed();
-    console.log("NFTFactory deployed to:", nftFactory.address);
+    const AssetFactory = await ethers.getContractFactory("AssetFactory");
+    const assetFactory = await AssetFactory.deploy();
+    await assetFactory.deployed();
+    console.log("AssetFactory deployed to:", assetFactory.address);
 
     await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 30 seconds
 
-    // ------------------------ NFTFACTORY PROXY ---------------------------------
+    // ------------------------ ASSETFACTORY PROXY ---------------------------------
 
-    const NFTFactoryProxy = await ethers.getContractFactory("NFTFactoryProxy");
-    const nftFactoryProxy = await NFTFactoryProxy.deploy();
-    await nftFactoryProxy.deployed();
-    console.log("NFTFactoryProxy deployed to:", nftFactoryProxy.address);
+    const AssetFactoryProxy = await ethers.getContractFactory("AssetFactoryProxy");
+    const assetFactoryProxy = await AssetFactoryProxy.deploy();
+    await assetFactoryProxy.deployed();
+    console.log("AssetFactoryProxy deployed to:", assetFactoryProxy.address);
 
     await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 30 seconds
 
-    // Set the first index to the GemFactory contract
-    const upgradeNFTFactoryTo = await nftFactoryProxy.upgradeTo(nftFactory.address);
-    await upgradeNFTFactoryTo.wait();
-    console.log("NFTFactoryProxy upgraded to NFTFactory");
+    const upgradeAssetFactoryTo = await assetFactoryProxy.upgradeTo(assetFactory.address);
+    await upgradeAssetFactoryTo.wait();
+    console.log("AssetFactoryProxy upgraded to AssetFactory");
 
     // ------------------------ TREASURY INSTANCE ---------------------------------
 

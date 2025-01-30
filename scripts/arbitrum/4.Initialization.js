@@ -8,30 +8,37 @@ async function main() {
 
   
   // Fetch environment variables
-  const nftFactoryAddress = process.env.NFT_FACTORY;
+  const assetFactoryAddress = process.env.ASSET_FACTORY;
 
-  const nftFactoryProxyAddress = process.env.NFT_FACTORY_PROXY;
+  const assetFactoryProxyAddress = process.env.ASSET_FACTORY_PROXY;
   const treasuryAddress = process.env.TREASURY;
   const treasuryProxyAddress = process.env.TREASURY_PROXY;
 
   
-  if (!nftFactoryAddress || !nftFactoryProxyAddress||  !treasuryAddress) {
-    throw new Error("Environment variables NFT_FACTORY, NFT_FACTORY_PROXY andTREASURY must be set");
+  if (!assetFactoryAddress || !assetFactoryProxyAddress|| !treasuryAddress || !treasuryProxyAddress) {
+    throw new Error("Environment variables NFT_FACTORY, NFT_FACTORY_PROXY, TREASURY and TREASURY_PROXY must be set");
   }
     
   // Get contract instances
-  const NFTFactory = await ethers.getContractAt("NFTFactory", nftFactoryProxyAddress);
+  const AssetFactory = await ethers.getContractAt("AssetFactory", assetFactoryProxyAddress);
   const Treasury = await ethers.getContractAt("Treasury", treasuryProxyAddress);
   
-  // ---------------------------- NFTFACTORYPROXY INITIALIZATION ---------------------------------
+  // ---------------------------- AssetFactoryProxy INITIALIZATION ---------------------------------
 
-  // Initialize NFTFactory with newly created contract addresses
-  const initializeTx = await NFTFactory.initialize(
-    "NFT Wston", // to update 
-    "NFTWSTON", // to update
+  const wstonValues = [
+    10000000000000000000000000000n,
+    20000000000000000000000000000n,
+    30000000000000000000000000000n,
+    40000000000000000000000000000n
+  ];
+  const uris = ["", "", "", ""]
+  // Initialize AssetFactory with newly created contract addresses
+  const initializeTx = await AssetFactory.initialize(
     deployer.address,
     process.env.ARB_SEPOLIA_WSTON_ADDRESS,
     treasuryProxyAddress,
+    wstonValues,
+    uris,
     { gasLimit: 10000000 }
   );
   await initializeTx.wait();
@@ -43,7 +50,7 @@ async function main() {
   // Call the Treasury initialize function
   const tx2 = await Treasury.initialize(
     process.env.ARB_SEPOLIA_WSTON_ADDRESS, // l2wston
-    nftFactoryProxyAddress
+    assetFactoryProxyAddress
   );
   await tx2.wait();
   console.log("TreasuryProxy initialized");
