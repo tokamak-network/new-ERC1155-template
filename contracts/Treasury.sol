@@ -6,7 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IAssetFactory } from "./interfaces/IAssetFactory.sol"; 
 import { AssetFactoryStorage } from "./AssetFactoryStorage.sol";
 import { AuthControl } from "./common/AuthControl.sol";
-import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import { IERC1155Receiver } from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import { TreasuryStorage } from "./TreasuryStorage.sol"; 
 import "./proxy/ProxyStorage.sol";
 
@@ -33,7 +33,7 @@ interface IWstonSwapPool {
  * @dev The contract integrates with external interfaces for NFT creation, marketplace operations, and token swaps.
  * It includes security features such as pausing operations and role-based access control.
  */
-contract Treasury is ProxyStorage, IERC721Receiver, ReentrancyGuard, AuthControl, TreasuryStorage {
+contract Treasury is ProxyStorage, IERC1155Receiver, ReentrancyGuard, AuthControl, TreasuryStorage {
     using SafeERC20 for IERC20;
 
     modifier whenNotPaused() {
@@ -45,6 +45,11 @@ contract Treasury is ProxyStorage, IERC721Receiver, ReentrancyGuard, AuthControl
     modifier whenPaused() {
         require(paused, "Pausable: not paused");
         _;
+    }
+
+    modifier onlyOwnerOrAssetFactory() {
+      require(isOwner() || msg.sender == assetFactory, "caller is neither owner nor AssetFactory");
+      _;
     }
 
     function pause() public onlyOwner whenNotPaused {
@@ -76,7 +81,7 @@ contract Treasury is ProxyStorage, IERC721Receiver, ReentrancyGuard, AuthControl
      * @notice Sets the address of the NFT factory.
      * @param _assetFactory New address of the NFT factory contract.
      */
-    function setassetFactory(address _assetFactory) external onlyOwnerOrAdmin {
+    function setAssetFactory(address _assetFactory) external onlyOwnerOrAdmin {
         _checkNonAddress(assetFactory);
         assetFactory = _assetFactory;
     }
@@ -87,15 +92,6 @@ contract Treasury is ProxyStorage, IERC721Receiver, ReentrancyGuard, AuthControl
      */
     function setWston(address _wston) external onlyOwner {
         wston = _wston;
-    }
-
-    /**
-     * @notice Approves a specific operator to manage a NFT token.
-     * @param operator Address of the operator.
-     * @param _tokenId ID of the token to approve.
-     */
-    function approveNFT(address operator, uint256 _tokenId) external onlyOwnerOrAdmin {
-        IAssetFactory(assetFactory).approve(operator, _tokenId);
     }
 
     //---------------------------------------------------------------------------------------
@@ -109,7 +105,7 @@ contract Treasury is ProxyStorage, IERC721Receiver, ReentrancyGuard, AuthControl
      * @dev only the assetFactory, MarketPlace, RandomPack, Airdrop or the Owner are authorized to transfer the funds
      * @return bool Returns true if the transfer is successful.
      */
-    function transferWSTON(address _to, uint256 _amount) external onlyOwner nonReentrant returns(bool) {
+    function transferWSTON(address _to, uint256 _amount) external onlyOwnerOrAssetFactory nonReentrant returns(bool) {
         // check _to diffrent from address(0)
         _checkNonAddress(_to);
 
@@ -135,9 +131,9 @@ contract Treasury is ProxyStorage, IERC721Receiver, ReentrancyGuard, AuthControl
         uint256 _tokenId,
         address _to,
         uint256 _numberOfNFTToMint
-    ) external onlyOwner {
+    ) external onlyOwner whenNotPaused {
         // safety check for WSTON solvency
-        if(getWSTONBalance() < IAssetFactory(assetFactory).getAssetsSupplyTotalValue() + (IAssetFactory(assetFactory).getSpecificAssetWstonValue(_tokenId) * _numberOfNFTToMint)) {
+        if(getWSTONBalance() < IAssetFactory(assetFactory).getAssetsSupplyTotalValue() + (IAssetFactory(assetFactory).getWstonValuePerNft(_tokenId) * _numberOfNFTToMint)) {
             revert NotEnoughWstonAvailableInTreasury();
         }
 
@@ -153,26 +149,43 @@ contract Treasury is ProxyStorage, IERC721Receiver, ReentrancyGuard, AuthControl
     /**
      * @notice Transfers a NFT from the treasury to a specified address.
      * @param _to Address to transfer the NFT to.
-     * @param _tokenId ID of the NFT token to transfer.
-     * @dev only the assetFactory, MarketPlace, RandomPack, Airdrop or the Owner are able to transfer NFTs from the treasury
+     * @param _tokenId ID of the token to transfer.
+     * @param _numberOfTokens number of NFT to send
+     * @param data data to handle errors
+     * @dev only the Owner is able to transfer tokens from the treasury
      * @return bool Returns true if the transfer is successful.
      */
-    function transferTreasuryNFTto(address _to, uint256 _tokenId) external onlyOwner returns(bool) {
-        IAssetFactory(assetFactory).transferFrom(address(this), _to, _tokenId);
+    function transferTreasuryTokensto(address _to, uint256 _tokenId, uint256 _numberOfTokens, bytes memory data) external onlyOwner returns(bool) {
+        IAssetFactory(assetFactory).safeTransferFrom(address(this), _to, _tokenId, _numberOfTokens, data);
         return true;
     }
 
     /**
-     * @notice Handles the receipt of an ERC721 token.
-     * @return bytes4 Returns the selector of the onERC721Received function.
+     * @notice Handles the receipt of an ERC1155 token.
+     * @return bytes4 Returns the selector of the onERC1155Received function.
      */
-    function onERC721Received(
+    function onERC1155Received(
         address /*operator*/,
         address /*from*/,
         uint256 /*tokenId*/,
+        uint256 /*value*/,
         bytes calldata /*data*/
     ) external pure override returns (bytes4) {
-        return this.onERC721Received.selector;
+        return this.onERC1155Received.selector;
+    }
+
+    /**
+     * @notice Handles the receipt of a batch of ERC1155 tokens.
+     * @return bytes4 Returns the selector of the onERC1155BatchReceived function.
+     */
+    function onERC1155BatchReceived(
+        address /*operator*/,
+        address /*from*/,
+        uint256[] calldata /*ids*/,
+        uint256[] calldata /*values*/,
+        bytes calldata /*data*/
+    ) external pure returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 
     //---------------------------------------------------------------------------------------

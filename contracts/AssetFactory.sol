@@ -80,6 +80,22 @@ contract AssetFactory is ProxyStorage,
         _;
     }
 
+    /**
+     * @notice function to pause the contract
+     */
+    function pause() external onlyOwner {
+        require(!paused, "contract already paused");
+        paused = true;
+    }
+
+    /**
+     * @notice function to unpause the contract
+     */
+    function unpause() external onlyOwner {
+        require(paused, "contract not paused");
+        paused = false;
+    }
+
     //---------------------------------------------------------------------------------------
     //--------------------------INITIALIZATION FUNCTIONS-------------------------------------
     //---------------------------------------------------------------------------------------
@@ -102,8 +118,19 @@ contract AssetFactory is ProxyStorage,
         wston = _wston;
         treasury = _treasury;
         for(uint256 i = 0; i < wstonValues.length; i++) {
-            createAsset(wstonValues[i], uris[i]);
+            // Create the new asset 
+            Asset memory newAsset = Asset({
+                tokenId: i,
+                wstonValuePerNFT: wstonValues[i],
+                totalWstonValue: 0,
+                uri: uris[i]
+            });
+            Assets.push(newAsset);
+
+            // Emit an event for the creation of the new NFT
+            emit Created(i, wstonValues[i], uris[i]);
         }
+        numberOfTokens = wstonValues.length - 1;
     }
 
     /**
@@ -127,6 +154,10 @@ contract AssetFactory is ProxyStorage,
      * @param wstonValues New wston values array.
      */
     function setWstonValuesAssociatedWtihTokenIds(uint256[] memory wstonValues) external onlyOwner {
+        if(wstonValues.length != Assets.length) {
+            revert WrongNumberOfValues();
+        }
+
         for(uint256 i = 0; i < wstonValues.length; i++) {
             Assets[i].wstonValuePerNFT = wstonValues[i];
         }
@@ -151,6 +182,11 @@ contract AssetFactory is ProxyStorage,
         // Check if the recipient's address is zero
         if (_to == address(0)) {
             revert AddressZero();
+        }
+
+        // if the token id passed in parameter does not exist
+        if(_tokenId > numberOfTokens) {
+            revert WrongTokenId();
         }
         
         // updates storage
@@ -192,63 +228,26 @@ contract AssetFactory is ProxyStorage,
      * @notice Creates a new ERC1155 type of NFT.
      * @param _wstonValue WSTON value of the new NFT to be created.
      * @param _uri TokenURI of the NFT.
-     * @return The IDs of the newly created NFT.
      */
     function createAsset(uint256 _wstonValue, string memory _uri)
         public
         onlyOwner
         whenNotPaused
-        returns (uint256)
     {
-        uint256 newAssetId = Assets.length - 1;
-        // Create the new NFT and get its ID
+        // Create the new asset 
         Asset memory newAsset = Asset({
-            tokenId: newAssetId,
+            tokenId: numberOfTokens,
             wstonValuePerNFT: _wstonValue,
             totalWstonValue: 0,
             uri: _uri
         });
         Assets.push(newAsset);
+        numberOfTokens++;
 
         // Emit an event for the creation of the new NFT
-        emit Created(newAssetId, _wstonValue, _uri);
-        return newAssetId;
+        emit Created(numberOfTokens, _wstonValue, _uri);
     }
 
-    //---------------------------------------------------------------------------------------
-    //--------------------------PRIVATE/INERNAL FUNCTIONS------------------------------------
-    //---------------------------------------------------------------------------------------
-
-
-    /**
-     * @notice Checks if the recipient address can handle ERC1155 tokens.
-     * @dev Calls the onERC1155Received function on the recipient if it is a contract.
-     * @param from The address sending the token.
-     * @param to The address receiving the token.
-     * @param tokenId The ID of the token being transferred.
-     * @param data Additional data with no specified format.
-     */
-    function _checkOnERC1155(address from, address to, uint256 tokenId, uint256 value, bytes memory data) private {
-        // Check if the recipient is a contract
-        if (to.code.length > 0) {
-            try IERC1155Receiver(to).onERC1155Received(_msgSender(), from, tokenId, value, data) returns (bytes4 retval) {
-                // Ensure the recipient contract returns the correct value
-                if (retval != IERC1155Receiver.onERC1155Received.selector) {
-                    revert ERC1155InvalidReceiver(to);
-                }
-            } catch (bytes memory reason) {
-                // Handle the case where the recipient contract does not implement the interface correctly
-                if (reason.length == 0) {
-                    revert ERC1155InvalidReceiver(to);
-                } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
-                        revert(add(32, reason), mload(reason))
-                    }
-                }
-            }
-        }
-    }
 
     //---------------------------------------------------------------------------------------
     //-----------------------------VIEW FUNCTIONS--------------------------------------------
@@ -264,17 +263,20 @@ contract AssetFactory is ProxyStorage,
     }
 
     /**
-     * @notice Retrieves the total supply of NFT tokens.
-     * @return The total number of NFT tokens in existence.
+     * @notice Retrieves the total wston value locked for a specific tokenId.
+     * @param _tokenId The token Id.
      */
-    function totalSupply() public view returns (uint256) {
-        // Return the total number of Assets, excluding the zero index
-        return Assets.length - 1;
+    function getTotalWstonValue(uint256 _tokenId) external view returns(uint256) {
+        return Assets[_tokenId].totalWstonValue;
     }
 
-    function getSpecificAssetWstonValue(uint256 _tokenId) external view returns (uint256) {
+    /**
+     * @notice Retrieves the wston value of a single NFT for a specific tokenId.
+     * @param _tokenId The token Id.
+     */
+    function getWstonValuePerNft(uint256 _tokenId) external view returns(uint256) {
         return Assets[_tokenId].wstonValuePerNFT;
-    }
+    } 
 
     /**
      * @notice Calculates the total value of all Assets in supply.

@@ -26,6 +26,7 @@ contract AssetFactoryStorage {
     //---------------------------------------------------------------------------------------
 
     Asset[] public Assets;
+    uint256 public numberOfTokens;
 
     bool public paused;
 
@@ -58,9 +59,13 @@ contract AssetFactoryStorage {
     //-------------------------------------ERRORS--------------------------------------------
     //---------------------------------------------------------------------------------------
 
+    // setup errors
+    error WrongNumberOfValues();
+
     // minting errors
     error AddressZero();
     error WrongNumberOfNFTToMint();
+    error WrongTokenId();
 
     // tranfer errors
     error TransferFailed();

@@ -15,9 +15,7 @@ interface IAssetFactory {
 
     function mintAsset(uint256 _tokenId, address _to, uint256 _numberOfNFTToMint) external;
 
-    function transferFrom(address from, address to, uint256 tokenId) external;
-
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) external;
+    function safeTransferFrom(address from, address to, uint256 tokenId, uint256 numberOfTokens, bytes memory data) external;
 
     function getAssetsSupplyTotalValue() external view returns(uint256 totalValue);
 
@@ -27,6 +25,6 @@ interface IAssetFactory {
 
     function getAsset(uint256 tokenId) external view returns (Asset memory);
 
-    function getSpecificAssetWstonValue(uint256 _tokenId) external view returns (uint256);
+    function getWstonValuePerNft(uint256 _tokenId) external view returns (uint256);
 
 }
