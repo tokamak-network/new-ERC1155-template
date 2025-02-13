@@ -1,4 +1,6 @@
 const { ethers, run } = require("hardhat");
+const fs = require("fs");
+const path = require("path");
 require('dotenv').config();
 
 // command to run: "npx hardhat run scripts/optimism/3.deploySTON.js --network l2"

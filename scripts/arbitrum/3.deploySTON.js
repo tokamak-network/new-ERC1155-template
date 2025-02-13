@@ -1,4 +1,6 @@
 const { ethers, run } = require("hardhat");
+const fs = require("fs");
+const path = require("path");
 require('dotenv').config();
 
 // run: "npx hardhat run scripts/arbitrum/3.deploySTON.js --network l2"
