@@ -51,7 +51,7 @@ async function main() {
   // Call the Treasury initialize function
   const tx2 = await Treasury.initialize(
     process.env.TRH_SEPOLIA_WSTON_ADDRESS, // l2wston
-    nftFactoryProxyAddress
+    assetFactoryProxyAddress
   );
   await tx2.wait();
   console.log("TreasuryProxy initialized");
