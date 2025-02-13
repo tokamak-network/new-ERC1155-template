@@ -55,6 +55,21 @@ async function main() {
     const upgradeTreasuryTo = await treasuryProxy.upgradeTo(treasury.address);
     await upgradeTreasuryTo.wait();
     console.log("TreasuryProxy upgraded to Treasury");
+
+    // ------------------------ UPDATE .ENV FILE ---------------------------------
+
+    const envFilePath = path.join(__dirname, '../../.env'); // Path to the .env file
+    const envVars = `
+# Deployed Contract Addresses
+FACTORY=${nftFactory.address}
+FACTORY_PROXY=${nftFactoryProxy.address}
+TREASURY=${treasury.address}
+TREASURY_PROXY=${treasuryProxy.address}
+`;
+
+    // Append or update the .env file
+    fs.appendFileSync(envFilePath, envVars);
+    console.log("Updated .env file with contract addresses.");
 }
 
 main()

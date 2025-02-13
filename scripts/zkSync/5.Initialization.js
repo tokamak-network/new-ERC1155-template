@@ -35,7 +35,7 @@ async function main() {
   // Initialize AssetFactory with newly created contract addresses
   const initializeTx = await AssetFactory.initialize(
     deployer.address,
-    process.env.ARB_SEPOLIA_WSTON_ADDRESS,
+    process.env.ZKSYNC_SEPOLIA_WSTON_ADDRESS,
     treasuryProxyAddress,
     wstonValues,
     uris,
@@ -49,7 +49,7 @@ async function main() {
   console.log("treasury initialization...");
   // Call the Treasury initialize function
   const tx2 = await Treasury.initialize(
-    process.env.OP_SEPOLIA_WSTON_ADDRESS, // l2wston
+    process.env.ZKSYNC_SEPOLIA_WSTON_ADDRESS, // l2wston
     nftFactoryProxyAddress
   );
   await tx2.wait();

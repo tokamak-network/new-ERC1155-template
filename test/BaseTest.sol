@@ -8,7 +8,7 @@ import { AssetFactoryProxy } from "../contracts/AssetFactoryProxy.sol";
 import { Treasury } from "../contracts/Treasury.sol";
 import { TreasuryProxy } from "../contracts/TreasuryProxy.sol";
 import { L2StandardERC20 } from "./mockContracts/L2StandardERC20.sol";
-import { AssetFactoryStorage } from "../contracts/AssetFactory.sol";
+import { AssetFactoryStorage } from "../contracts/AssetFactoryStorage.sol";
 import { TreasuryStorage } from "../contracts/TreasuryStorage.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -56,7 +56,6 @@ contract BaseTest is Test {
         vm.stopPrank();
 
         vm.startPrank(owner);
-        // give ETH to User1 and User2 to cover gasFees associated with using VRF functions as well as interacting with thanos
         vm.deal(user1, 1000000 ether);
         vm.deal(user2, 1000000 ether);
 
@@ -84,7 +83,7 @@ contract BaseTest is Test {
 
         vm.stopPrank();
 
-        // mint some TON & WSTON to treasury
+        // mint some WSTON to treasury
         vm.startPrank(l2bridge);
         L2StandardERC20(wston).mint(treasuryProxyAddress, 100000 * 10 ** 27);
         vm.stopPrank();
@@ -99,7 +98,7 @@ contract BaseTest is Test {
         uris[0] = "";
         uris[1] = "";
         
-        // initialize gemfactory with newly created contract addreses
+        // initialize assetfactory with newly created contract addreses
         AssetFactory(assetfactoryProxyAddress).initialize(
             owner,
             wston,

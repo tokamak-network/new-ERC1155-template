@@ -8,8 +8,8 @@ async function main() {
 
     console.log("Minting GEMs with the account:", deployer.address);
     const l1wstonProxyAddress = process.env.L1_WRAPPED_STAKED_TON_PROXY;
-    const l1bridge = process.env.THANOS_L1_BRIDGE;
-    const remoteToken = process.env.THANOS_WRAPPED_STAKED_TON;
+    const l1bridge = process.env.TRH_L1_BRIDGE;
+    const remoteToken = process.env.TRH_SEPOLIA_WSTON_ADDRESS;
 
     // Get contract instance
     const wstonTokenABI = [
@@ -26,7 +26,7 @@ async function main() {
     const l1BridgeContract = new ethers.Contract(l1bridge, l1BridgeABI, deployer);
 
     // Define the amount to deposit (in WSTON with 27 decimals)
-    const wstonAmount = ethers.parseUnits('40628', 27); 
+    const wstonAmount = ethers.parseUnits('100', 27); 
 
     try {
         // Call the approve function
