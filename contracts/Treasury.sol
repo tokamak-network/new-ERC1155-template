@@ -13,17 +13,6 @@ import "./proxy/ProxyStorage.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 
-interface IMarketPlace {
-    function putNFTListForSale(uint256[] memory tokenIds, uint256[] memory prices) external;
-    function putNFTForSale(uint256 _tokenId, uint256 _price) external;
-    function buyNFT(uint256 _tokenId, bool _paymentMethod) external;
-    function removeNFTForSale(uint256 _tokenId) external;
-}
-
-interface IWstonSwapPool {
-    function swapTONforWSTON(uint256 tonAmount) external;
-}
-
 /**
  * @title Treasury Contract for Token managememnt
  * @author TOKAMAK OPAL TEAM

@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 require('dotenv').config();
 // command to run: "source .env"
-// command to run: "npx hardhat run scripts/optimism/4.thanos.js --network l2"
+// command to run: "npx hardhat run scripts/trh/4.thanos.js --network l2"
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -16,7 +16,7 @@ async function main() {
 
   
   if (!assetFactoryAddress || !assetFactoryProxyAddress|| !treasuryAddress || !treasuryProxyAddress) {
-    throw new Error("Environment variables NFT_FACTORY, NFT_FACTORY_PROXY, TREASURY and TREASURY_PROXY must be set");
+    throw new Error("Environment variables ASSET_FACTORY, ASSET_FACTORY_PROXY, TREASURY and TREASURY_PROXY must be set");
   }
     
   // Get contract instances
@@ -42,7 +42,7 @@ async function main() {
     { gasLimit: 10000000 }
   );
   await initializeTx.wait();
-  console.log("NFTFactoryProxy initialized");
+  console.log("AssetFactoryProxy initialized");
 
 
   // ---------------------------- TREASURYPROXY INITIALIZATION ---------------------------------
