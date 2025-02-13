@@ -62,8 +62,8 @@ async function main() {
     const envFilePath = path.join(__dirname, '../../.env'); // Path to the .env file
     const envVars = `
 # Deployed Contract Addresses
-FACTORY=${nftFactory.address}
-FACTORY_PROXY=${nftFactoryProxy.address}
+ASSET_FACTORY=${assetFactory.address}
+ASSET_FACTORY_PROXY=${AudioProcessingEventFactoryProxy.address}
 TREASURY=${treasury.address}
 TREASURY_PROXY=${treasuryProxy.address}
 `;
