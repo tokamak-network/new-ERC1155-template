@@ -17,7 +17,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
  * @title Treasury Contract for Token managememnt
  * @author TOKAMAK OPAL TEAM
  * @notice This contract manages the storage and transfer of NFT tokens and WSTON tokens within the ecosystem.
- * It facilitates interactions with the assetFactory, Marketplace, Random Pack, and Airdrop contracts.
+ * It facilitates interactions with the assetFactory contract.
  * The contract includes functionalities for creating premined NFTs, handling token transfers, and managing sales on the marketplace.
  * @dev The contract integrates with external interfaces for NFT creation, marketplace operations, and token swaps.
  * It includes security features such as pausing operations and role-based access control.

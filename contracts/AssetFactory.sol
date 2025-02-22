@@ -13,7 +13,6 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 interface ITreasury {
     function transferWSTON(address _to, uint256 _amount) external returns (bool);
-    function transferTreasuryNFTto(address _to, uint256 _tokenId) external returns (bool);
 }
 
 /**
